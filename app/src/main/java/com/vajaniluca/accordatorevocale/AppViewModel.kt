@@ -63,6 +63,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         engine.a4 = _settings.value.a4.toDouble()
+        engine.noiseMarginDb = _settings.value.noiseFilter.marginDb
         viewModelScope.launch { engine.frames.collect { onFrame(it) } }
     }
 
@@ -158,6 +159,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _settings.value = s
         settingsRepository.save(s)
         engine.a4 = s.a4.toDouble()
+        engine.noiseMarginDb = s.noiseFilter.marginDb
         displaySmoother.timeConstantSec = s.responsiveness.timeConstantSec
         graphSmoother.timeConstantSec = s.responsiveness.timeConstantSec / 2
     }

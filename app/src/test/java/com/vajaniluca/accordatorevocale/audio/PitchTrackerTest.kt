@@ -2,6 +2,7 @@ package com.vajaniluca.accordatorevocale.audio
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PitchTrackerTest {
@@ -25,15 +26,33 @@ class PitchTrackerTest {
     @Test
     fun mantieneIlVibrato() {
         val t = PitchTracker()
+        repeat(4) { t.process(60.0) }
         val input = listOf(60.0, 60.3, 60.5, 60.3, 60.0, 59.7, 59.5, 59.7, 60.0)
         val out = input.map { t.process(it)!! }
         assertEquals(input, out)
     }
 
     @Test
+    fun attaccoRichiedeUnaNotaStabile() {
+        val t = PitchTracker()
+        assertNull(t.process(60.0))
+        assertNull(t.process(60.1))
+        assertNull(t.process(60.0))
+        assertEquals(60.1, t.process(60.1)!!, 1e-9)
+    }
+
+    @Test
+    fun parlatoCheScivolaVieneIgnorato() {
+        val t = PitchTracker()
+        // Intonazione del parlato: sale e scende di più semitoni in poche decine di millisecondi
+        val speech = listOf(55.0, 56.5, 58.0, 57.0, 55.5, 54.0, 56.0, 58.5, 57.0, 55.0)
+        assertTrue(speech.all { t.process(it) == null })
+    }
+
+    @Test
     fun silenzioRestituisceNull() {
         val t = PitchTracker()
-        t.process(60.0)
+        repeat(4) { t.process(60.0) }
         assertNull(t.process(null))
     }
 }

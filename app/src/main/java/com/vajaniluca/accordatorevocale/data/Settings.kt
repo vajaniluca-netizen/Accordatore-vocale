@@ -10,12 +10,20 @@ enum class Responsiveness(val label: String, val timeConstantSec: Double) {
     FAST("Rapida", 0.07),
 }
 
+/** Margine in dB sopra il rumore di fondo richiesto per considerare un suono come voce. */
+enum class NoiseFilter(val label: String, val marginDb: Double) {
+    LIGHT("Leggero", 8.0),
+    NORMAL("Normale", 14.0),
+    STRONG("Forte", 20.0),
+}
+
 data class Settings(
     val a4: Int = 440,
     val notation: Notation = Notation.ITALIAN,
     val toleranceCents: Int = 20,
     val leadInBeats: Int = 4,
     val responsiveness: Responsiveness = Responsiveness.NORMAL,
+    val noiseFilter: NoiseFilter = NoiseFilter.NORMAL,
 )
 
 class SettingsRepository(context: Context) {
@@ -28,6 +36,8 @@ class SettingsRepository(context: Context) {
         leadInBeats = prefs.getInt("leadIn", 4),
         responsiveness = runCatching { Responsiveness.valueOf(prefs.getString("responsiveness", null) ?: "") }
             .getOrDefault(Responsiveness.NORMAL),
+        noiseFilter = runCatching { NoiseFilter.valueOf(prefs.getString("noiseFilter", null) ?: "") }
+            .getOrDefault(NoiseFilter.NORMAL),
     )
 
     fun save(settings: Settings) {
@@ -37,6 +47,7 @@ class SettingsRepository(context: Context) {
             .putInt("tolerance", settings.toleranceCents)
             .putInt("leadIn", settings.leadInBeats)
             .putString("responsiveness", settings.responsiveness.name)
+            .putString("noiseFilter", settings.noiseFilter.name)
             .apply()
     }
 }

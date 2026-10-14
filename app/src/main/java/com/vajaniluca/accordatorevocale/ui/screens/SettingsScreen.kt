@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vajaniluca.accordatorevocale.AppViewModel
+import com.vajaniluca.accordatorevocale.data.NoiseFilter
 import com.vajaniluca.accordatorevocale.data.Responsiveness
 import com.vajaniluca.accordatorevocale.music.Notation
 import com.vajaniluca.accordatorevocale.ui.components.SimpleTopBar
@@ -65,6 +66,19 @@ fun SettingsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                 }
             }
             Hint("Stabile fa la media su un tempo più lungo e ignora vibrato e piccoli tremolii; Rapida mostra ogni variazione. Il punteggio degli esercizi non cambia.")
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            Text("Filtro rumore di fondo", style = MaterialTheme.typography.titleSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (f in NoiseFilter.entries) {
+                    FilterChip(
+                        selected = settings.noiseFilter == f,
+                        onClick = { vm.updateSettings { it.copy(noiseFilter = f) } },
+                        label = { Text(f.label) },
+                    )
+                }
+            }
+            Hint("L'app misura il rumore dell'ambiente (TV, voci lontane) e ascolta solo i suoni più forti di quel livello. Con Forte devi cantare più vicino o più forte; con Leggero senti anche le voci deboli ma entra più rumore. Nell'accordatore la barra del livello mostra dove si trova la soglia.")
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
             Text("La di riferimento: ${settings.a4} Hz", style = MaterialTheme.typography.titleSmall)

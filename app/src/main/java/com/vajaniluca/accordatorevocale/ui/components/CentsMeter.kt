@@ -63,3 +63,28 @@ fun DeviationLabel(cents: Double?, toleranceCents: Int, style: TextStyle = Mater
 }
 
 fun signed(value: Int): String = if (value > 0) "+$value" else value.toString()
+
+/**
+ * Barra del volume del microfono da -70 a 0 dB, con una tacca sulla soglia del filtro rumore:
+ * la voce viene ascoltata solo quando la barra supera la tacca.
+ */
+@Composable
+fun LevelBar(levelDb: Double?, thresholdDb: Double?, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    val track = colors.surfaceContainerHighest
+    val quiet = colors.outline
+    val marker = colors.onSurface
+    Canvas(modifier) {
+        fun x(db: Double) = (((db + 70.0) / 70.0).coerceIn(0.0, 1.0) * size.width).toFloat()
+        val r = CornerRadius(size.height / 2)
+        drawRoundRect(track, cornerRadius = r)
+        if (levelDb != null) {
+            val above = thresholdDb != null && levelDb > thresholdDb
+            drawRoundRect(if (above) PitchColors.InTune else quiet, size = Size(x(levelDb), size.height), cornerRadius = r)
+        }
+        if (thresholdDb != null) {
+            val tx = x(thresholdDb)
+            drawLine(marker, Offset(tx, -size.height), Offset(tx, size.height * 2), 2.dp.toPx())
+        }
+    }
+}

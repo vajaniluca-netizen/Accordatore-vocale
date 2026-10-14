@@ -7,6 +7,8 @@ data class PitchFrame(
     val frequency: Double?,
     val midi: Double?,
     val levelDb: Double,
+    /** Livello sopra il quale il suono è considerato voce (dipende dal rumore di fondo). */
+    val thresholdDb: Double,
     /** Nota mostrata, scelta con un margine per non sfarfallare tra due note vicine. */
     val note: Int? = null,
 )

@@ -24,13 +24,15 @@ class AudioEngine {
         const val SAMPLE_RATE = 44100
         const val FRAME_SIZE = 4096
         const val HOP_SIZE = 1024
-        const val SILENCE_DB = -55.0
+        /** Regolarità minima del suono (1 = periodico perfetto): sotto questa soglia non è canto. */
+        const val MIN_CONFIDENCE = 0.8
     }
 
     private val _frames = MutableSharedFlow<PitchFrame>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val frames: SharedFlow<PitchFrame> = _frames.asSharedFlow()
 
     @Volatile var a4: Double = 440.0
+    @Volatile var noiseMarginDb: Double = 14.0
     @Volatile private var samplesRead = 0L
     @Volatile private var running = false
     private var thread: Thread? = null
@@ -80,6 +82,9 @@ class AudioEngine {
         Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
         val detector = YinPitchDetector(SAMPLE_RATE, FRAME_SIZE)
         val tracker = PitchTracker()
+        val gate = NoiseGate()
+        val hopSec = HOP_SIZE.toDouble() / SAMPLE_RATE
+        var pitched = false
         val hop = ShortArray(HOP_SIZE)
         val frame = FloatArray(FRAME_SIZE)
         var filled = 0
@@ -104,11 +109,16 @@ class AudioEngine {
                 if (filled < FRAME_SIZE) continue
 
                 val level = levelDb(frame)
-                val result = if (level > SILENCE_DB) detector.detect(frame) else null
+                gate.marginDb = noiseMarginDb
+                val voiced = gate.process(level, hopSec, pitched)
+                val result = if (voiced) detector.detect(frame)?.takeIf { it.confidence >= MIN_CONFIDENCE } else null
                 val reference = a4
                 val midi = tracker.process(result?.let { Notes.freqToMidi(it.frequency, reference) })
+                pitched = midi != null
                 val time = (samplesRead - FRAME_SIZE / 2).toDouble() / SAMPLE_RATE
-                _frames.tryEmit(PitchFrame(gen, time, midi?.let { Notes.midiToFreq(it, reference) }, midi, level))
+                _frames.tryEmit(
+                    PitchFrame(gen, time, midi?.let { Notes.midiToFreq(it, reference) }, midi, level, gate.thresholdDb),
+                )
             }
         } catch (e: Exception) {
             running = false

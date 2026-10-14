@@ -32,6 +32,7 @@ import com.vajaniluca.accordatorevocale.audio.PitchFrame
 import com.vajaniluca.accordatorevocale.music.Notes
 import com.vajaniluca.accordatorevocale.ui.components.CentsMeter
 import com.vajaniluca.accordatorevocale.ui.components.DeviationLabel
+import com.vajaniluca.accordatorevocale.ui.components.LevelBar
 import com.vajaniluca.accordatorevocale.ui.components.PitchGraph
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -94,6 +95,8 @@ fun TunerScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                 )
             }
         }
+        Spacer(Modifier.height(8.dp))
+        LevelBar(current?.levelDb, current?.thresholdDb, Modifier.fillMaxWidth(0.6f).height(6.dp))
         Spacer(Modifier.height(12.dp))
         CentsMeter(cents?.toFloat(), settings.toleranceCents, Modifier.fillMaxWidth().height(56.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
