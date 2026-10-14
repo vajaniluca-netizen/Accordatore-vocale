@@ -7,6 +7,8 @@ data class PitchFrame(
     val frequency: Double?,
     val midi: Double?,
     val levelDb: Double,
+    /** Nota mostrata, scelta con un margine per non sfarfallare tra due note vicine. */
+    val note: Int? = null,
 )
 
 data class PitchPoint(val timeSec: Double, val midi: Double?)

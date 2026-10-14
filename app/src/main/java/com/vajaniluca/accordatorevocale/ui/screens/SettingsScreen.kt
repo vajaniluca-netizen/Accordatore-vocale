@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vajaniluca.accordatorevocale.AppViewModel
+import com.vajaniluca.accordatorevocale.data.Responsiveness
 import com.vajaniluca.accordatorevocale.music.Notation
 import com.vajaniluca.accordatorevocale.ui.components.SimpleTopBar
 import kotlin.math.roundToInt
@@ -51,6 +52,19 @@ fun SettingsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                 )
             }
             Hint("Ottave in notazione scientifica: Do4 è il Do centrale, La4 è il La del diapason.")
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            Text("Reattività dell'indicatore", style = MaterialTheme.typography.titleSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (r in Responsiveness.entries) {
+                    FilterChip(
+                        selected = settings.responsiveness == r,
+                        onClick = { vm.updateSettings { it.copy(responsiveness = r) } },
+                        label = { Text(r.label) },
+                    )
+                }
+            }
+            Hint("Stabile fa la media su un tempo più lungo e ignora vibrato e piccoli tremolii; Rapida mostra ogni variazione. Il punteggio degli esercizi non cambia.")
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
             Text("La di riferimento: ${settings.a4} Hz", style = MaterialTheme.typography.titleSmall)

@@ -69,7 +69,7 @@ fun TunerScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
         if (audioError) ErrorBanner("Impossibile usare il microfono. Controlla che nessun'altra app lo stia usando.")
 
         val midi = shown?.midi
-        val nearest = midi?.roundToInt()
+        val nearest = shown?.note ?: midi?.roundToInt()
         val cents = if (midi != null && nearest != null) (midi - nearest) * 100 else null
         val textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = if (stale) 0.4f else 1f)
 

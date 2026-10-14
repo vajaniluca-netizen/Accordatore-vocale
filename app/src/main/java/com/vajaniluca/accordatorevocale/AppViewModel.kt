@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.vajaniluca.accordatorevocale.audio.AudioEngine
+import com.vajaniluca.accordatorevocale.audio.NoteHysteresis
 import com.vajaniluca.accordatorevocale.audio.PitchFrame
 import com.vajaniluca.accordatorevocale.audio.PitchPoint
+import com.vajaniluca.accordatorevocale.audio.PitchSmoother
 import com.vajaniluca.accordatorevocale.data.ExerciseRepository
 import com.vajaniluca.accordatorevocale.data.Settings
 import com.vajaniluca.accordatorevocale.data.SettingsRepository
@@ -16,6 +18,7 @@ import com.vajaniluca.accordatorevocale.exercise.ExerciseResult
 import com.vajaniluca.accordatorevocale.exercise.ExerciseSession
 import com.vajaniluca.accordatorevocale.exercise.Presets
 import com.vajaniluca.accordatorevocale.exercise.Scoring
+import com.vajaniluca.accordatorevocale.music.Notes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,6 +56,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private val transpositions = mutableStateMapOf<String, Int>()
 
+    // L'indicatore usa una media più lenta, il tracciato una più leggera; il punteggio usa i valori grezzi.
+    private val displaySmoother = PitchSmoother(_settings.value.responsiveness.timeConstantSec)
+    private val graphSmoother = PitchSmoother(_settings.value.responsiveness.timeConstantSec / 2)
+    private val noteHysteresis = NoteHysteresis()
+
     init {
         engine.a4 = _settings.value.a4.toDouble()
         viewModelScope.launch { engine.frames.collect { onFrame(it) } }
@@ -60,6 +68,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startAudio() {
         history.clear()
+        displaySmoother.reset()
+        graphSmoother.reset()
+        noteHysteresis.reset()
         _current.value = null
         _session.value = null
         _audioError.value = !engine.start()
@@ -76,8 +87,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun onFrame(frame: PitchFrame) {
         if (frame.generation != engine.generation) return
-        _current.value = frame
-        history.add(PitchPoint(frame.timeSec, frame.midi))
+        val shown = displaySmoother.process(frame.timeSec, frame.midi)
+        _current.value = frame.copy(
+            midi = shown,
+            frequency = shown?.let { Notes.midiToFreq(it, _settings.value.a4.toDouble()) },
+            note = if (shown == null) null else noteHysteresis.process(shown),
+        )
+        history.add(PitchPoint(frame.timeSec, graphSmoother.process(frame.timeSec, frame.midi)))
         val cutoff = frame.timeSec - HISTORY_SEC
         var drop = 0
         while (drop < history.size && history[drop].timeSec < cutoff) drop++
@@ -142,5 +158,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _settings.value = s
         settingsRepository.save(s)
         engine.a4 = s.a4.toDouble()
+        displaySmoother.timeConstantSec = s.responsiveness.timeConstantSec
+        graphSmoother.timeConstantSec = s.responsiveness.timeConstantSec / 2
     }
 }

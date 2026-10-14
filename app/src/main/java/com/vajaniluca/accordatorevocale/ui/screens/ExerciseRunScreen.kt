@@ -130,7 +130,7 @@ fun ExerciseRunScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text("Tu", style = MaterialTheme.typography.labelMedium)
                                     Text(
-                                        sung?.let { Notes.name(it.roundToInt(), settings.notation) } ?: "–",
+                                        (frame?.note ?: sung?.roundToInt())?.let { Notes.name(it, settings.notation) } ?: "–",
                                         fontSize = 32.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
