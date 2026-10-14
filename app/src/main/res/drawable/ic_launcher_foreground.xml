@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icona: una croma stilizzata sopra un'onda sonora, entro la zona sicura centrale. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M39,64 A9,7 0,1 0,57 64 A9,7 0,1 0,39 64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M53,30 L57,30 L57,64 L53,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57,30 C63,32 69,36 69,44 C66,40 61,39 57,39 Z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7FD1AE"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M32,80 Q37.5,74 43,80 T54,80 T65,80 T76,80" />
+</vector>
