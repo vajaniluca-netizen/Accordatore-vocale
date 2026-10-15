@@ -5,16 +5,16 @@ import com.vajaniluca.accordatorevocale.music.Notation
 
 /** Quanto l'indicatore segue in fretta la voce: costante di tempo della media, in secondi. */
 enum class Responsiveness(val label: String, val timeConstantSec: Double) {
-    STABLE("Stabile", 0.4),
-    NORMAL("Normale", 0.2),
-    FAST("Rapida", 0.07),
+    STABLE("Stabile", 0.8),
+    NORMAL("Normale", 0.4),
+    FAST("Rapida", 0.15),
 }
 
 /** Margine in dB sopra il rumore di fondo richiesto per considerare un suono come voce. */
 enum class NoiseFilter(val label: String, val marginDb: Double) {
-    LIGHT("Leggero", 8.0),
-    NORMAL("Normale", 14.0),
-    STRONG("Forte", 20.0),
+    LIGHT("Leggero", 12.0),
+    NORMAL("Normale", 20.0),
+    STRONG("Forte", 28.0),
 }
 
 data class Settings(

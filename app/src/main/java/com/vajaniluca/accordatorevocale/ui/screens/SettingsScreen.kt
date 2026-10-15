@@ -65,7 +65,7 @@ fun SettingsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                     )
                 }
             }
-            Hint("Stabile fa la media su un tempo più lungo e ignora vibrato e piccoli tremolii; Rapida mostra ogni variazione. Il punteggio degli esercizi non cambia.")
+            Hint("Stabile fa la media su quasi un secondo e mostra solo l'intonazione di fondo; Normale attenua vibrato e tremolii; Rapida segue di più le variazioni. Il punteggio degli esercizi non cambia.")
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
             Text("Filtro rumore di fondo", style = MaterialTheme.typography.titleSmall)

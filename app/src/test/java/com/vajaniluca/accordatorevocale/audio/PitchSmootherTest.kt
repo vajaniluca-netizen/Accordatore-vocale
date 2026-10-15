@@ -49,9 +49,10 @@ class PitchSmootherTest {
         val h = NoteHysteresis()
         assertEquals(60, h.process(60.1))
         assertEquals(60, h.process(60.55))
-        assertEquals(60, h.process(60.6))
-        assertEquals(61, h.process(60.7))
-        assertEquals(61, h.process(60.4))
-        assertTrue(abs(60.4 - 61) < 0.65)
+        assertEquals(60, h.process(60.7))
+        assertEquals(61, h.process(60.8))
+        assertEquals(61, h.process(60.3))
+        assertEquals(60, h.process(60.2))
+        assertTrue(abs(60.3 - 61) < 0.75)
     }
 }

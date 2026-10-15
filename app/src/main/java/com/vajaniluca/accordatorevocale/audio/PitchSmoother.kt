@@ -42,7 +42,7 @@ class PitchSmoother(
  * Sceglie la nota più vicina con un margine: per passare alla nota accanto devi superare
  * la metà del semitono di [marginSemitones], così il nome non sfarfalla quando sei sul confine.
  */
-class NoteHysteresis(private val marginSemitones: Double = 0.15) {
+class NoteHysteresis(private val marginSemitones: Double = 0.25) {
     private var current: Int? = null
 
     fun reset() {

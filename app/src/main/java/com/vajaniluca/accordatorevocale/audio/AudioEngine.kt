@@ -25,14 +25,14 @@ class AudioEngine {
         const val FRAME_SIZE = 4096
         const val HOP_SIZE = 1024
         /** Regolarità minima del suono (1 = periodico perfetto): sotto questa soglia non è canto. */
-        const val MIN_CONFIDENCE = 0.8
+        const val MIN_CONFIDENCE = 0.85
     }
 
     private val _frames = MutableSharedFlow<PitchFrame>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val frames: SharedFlow<PitchFrame> = _frames.asSharedFlow()
 
     @Volatile var a4: Double = 440.0
-    @Volatile var noiseMarginDb: Double = 14.0
+    @Volatile var noiseMarginDb: Double = 20.0
     @Volatile private var samplesRead = 0L
     @Volatile private var running = false
     private var thread: Thread? = null

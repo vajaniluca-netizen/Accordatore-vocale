@@ -11,9 +11,9 @@ import kotlin.math.min
  * È considerata voce solo ciò che supera il fondo di [marginDb].
  */
 class NoiseGate(
-    @Volatile var marginDb: Double = 14.0,
-    private val absoluteMinDb: Double = -60.0,
-    private val riseDbPerSec: Double = 3.0,
+    @Volatile var marginDb: Double = 20.0,
+    private val absoluteMinDb: Double = -50.0,
+    private val riseDbPerSec: Double = 5.0,
     private val hysteresisDb: Double = 4.0,
 ) {
     var floorDb: Double = Double.NaN
