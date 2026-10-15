@@ -57,7 +57,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val transpositions = mutableStateMapOf<String, Int>()
 
     // L'indicatore usa una media più lenta, il tracciato una più leggera; il punteggio usa i valori grezzi.
-    private val displaySmoother = PitchSmoother(_settings.value.responsiveness.timeConstantSec)
+    private val displaySmoother = PitchSmoother(_settings.value.responsiveness.timeConstantSec, holdDuringGaps = true)
     private val graphSmoother = PitchSmoother(_settings.value.responsiveness.timeConstantSec / 2)
     private val noteHysteresis = NoteHysteresis()
 

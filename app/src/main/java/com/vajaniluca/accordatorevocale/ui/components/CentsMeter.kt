@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 /** Indicatore orizzontale da -50 a +50 cent con la zona verde della tolleranza. */
 @Composable
 fun CentsMeter(cents: Float?, toleranceCents: Int, modifier: Modifier = Modifier) {
-    val animated by animateFloatAsState(cents ?: 0f, animationSpec = tween(90), label = "cent")
+    val animated by animateFloatAsState(cents ?: 0f, animationSpec = tween(250), label = "cent")
     val colors = MaterialTheme.colorScheme
     val track = colors.surfaceContainerHighest
     val tick = colors.onSurfaceVariant
@@ -53,7 +53,8 @@ fun DeviationLabel(cents: Double?, toleranceCents: Int, style: TextStyle = Mater
         Text(" ", style = style)
         return
     }
-    val rounded = cents.roundToInt()
+    // Il numero va a passi di 5 cent: un valore che cambia a ogni frame sarebbe illeggibile.
+    val rounded = (cents / 5).roundToInt() * 5
     val text = when {
         abs(cents) <= toleranceCents -> "✓ Intonato (${signed(rounded)} cent)"
         cents > 0 -> "▲ Più alto di $rounded cent"

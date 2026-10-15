@@ -6,6 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Su GitHub Actions ogni build ha un numero crescente: così ogni APK può aggiornare il precedente.
+val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+
 android {
     namespace = "com.vajaniluca.accordatorevocale"
     compileSdk = 35
@@ -14,8 +17,19 @@ android {
         applicationId = "com.vajaniluca.accordatorevocale"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = buildNumber
+        versionName = "0.2.$buildNumber"
+    }
+
+    // Chiave di firma fissa, salvata nel progetto: senza, ogni build avrebbe una chiave diversa
+    // e Android rifiuterebbe l'aggiornamento. Va bene per uso personale, non per il Play Store.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {

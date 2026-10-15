@@ -5,26 +5,37 @@ import kotlin.math.exp
 import kotlin.math.roundToInt
 
 /**
- * Media esponenziale nel tempo dell'altezza, per un indicatore stabile.
- * Un salto ampio (cambio di nota) viene seguito subito, senza la scia della media.
+ * Altezza stabilizzata per l'indicatore, in due passaggi:
+ * una mediana sugli ultimi [medianSize] frame elimina i picchi isolati, poi una media esponenziale
+ * nel tempo attenua vibrato e tremolii. Un cambio di nota ampio viene seguito senza la scia della media.
+ * I brevi buchi del segnale (fino a [maxGapSec]) non azzerano la media; con [holdDuringGaps]
+ * durante il buco viene restituito l'ultimo valore, così l'indicatore non lampeggia.
  */
 class PitchSmoother(
     var timeConstantSec: Double,
     private val jumpSemitones: Double = 1.5,
-    private val maxGapSec: Double = 0.15,
+    private val maxGapSec: Double = 0.5,
+    private val medianSize: Int = 7,
+    private val holdDuringGaps: Boolean = false,
 ) {
     private var value: Double? = null
     private var lastTime = 0.0
+    private val window = ArrayDeque<Double>()
 
     fun reset() {
         value = null
+        window.clear()
     }
 
-    fun process(timeSec: Double, midi: Double?): Double? {
-        if (midi == null) {
-            if (timeSec - lastTime > maxGapSec) value = null
-            return null
+    fun process(timeSec: Double, raw: Double?): Double? {
+        if (raw == null) {
+            if (timeSec - lastTime > maxGapSec) reset()
+            return if (holdDuringGaps) value else null
         }
+        if (value != null && timeSec - lastTime > maxGapSec) reset()
+        window.addLast(raw)
+        if (window.size > medianSize) window.removeFirst()
+        val midi = window.sorted()[window.size / 2]
         val previous = value
         val next = if (previous == null || abs(midi - previous) > jumpSemitones || timeConstantSec <= 0.0) {
             midi

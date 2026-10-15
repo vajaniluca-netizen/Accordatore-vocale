@@ -15,14 +15,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -67,11 +65,6 @@ fun ExerciseRunScreen(
         }
     }
     val running = active != null && active.result == null
-    val view = LocalView.current
-    DisposableEffect(running) {
-        view.keepScreenOn = running
-        onDispose { view.keepScreenOn = false }
-    }
 
     val transpose = vm.transposition(exercise.id)
     val shown = active?.exercise ?: exercise.transposed(transpose)

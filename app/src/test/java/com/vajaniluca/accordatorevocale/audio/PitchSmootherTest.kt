@@ -24,7 +24,33 @@ class PitchSmootherTest {
     fun seguitSubitoUnCambioDiNota() {
         val s = PitchSmoother(0.3)
         repeat(20) { s.process(it * hop, 60.0) }
-        assertEquals(67.0, s.process(20 * hop, 67.0)!!, 1e-9)
+        val out = (20 until 24).map { s.process(it * hop, 67.0)!! }
+        assertEquals(67.0, out.last(), 1e-9)
+    }
+
+    @Test
+    fun ignoraPicchiIsolati() {
+        val s = PitchSmoother(0.4)
+        repeat(20) { s.process(it * hop, 60.0) }
+        val spikes = listOf(72.0, 60.0, 60.0, 48.0, 60.0, 61.2, 60.0)
+        val out = spikes.mapIndexed { i, m -> s.process((20 + i) * hop, m)!! }
+        assertTrue(out.all { abs(it - 60.0) < 0.01 })
+    }
+
+    @Test
+    fun mantieneIlValoreNeiBuchiBrevi() {
+        val s = PitchSmoother(0.4, holdDuringGaps = true)
+        repeat(20) { s.process(it * hop, 60.0) }
+        assertEquals(60.0, s.process(22 * hop, null)!!, 1e-9)
+        assertNull(s.process(60 * hop, null))
+    }
+
+    @Test
+    fun superaUnBreveBuco() {
+        val s = PitchSmoother(0.4)
+        repeat(20) { s.process(it * hop, 60.0) }
+        assertNull(s.process(20 * hop, null))
+        assertEquals(60.0, s.process(25 * hop, 60.3)!!, 0.05)
     }
 
     @Test
