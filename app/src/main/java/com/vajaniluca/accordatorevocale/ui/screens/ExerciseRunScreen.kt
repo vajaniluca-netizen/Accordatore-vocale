@@ -1,5 +1,7 @@
 package com.vajaniluca.accordatorevocale.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -83,6 +85,17 @@ fun ExerciseRunScreen(
         low -= extra / 2
         high += extra - extra / 2
     }
+    // Il grafico si allarga per includere dove sta cantando la voce negli ultimi secondi
+    // (fino a un'ottava e mezza oltre l'esercizio); più lontano compare una freccia sul bordo.
+    if (running) {
+        val recent = vm.history.filter { it.midi != null && now - it.timeSec < 3.0 }.mapNotNull { it.midi }
+        if (recent.isNotEmpty()) {
+            low = minOf(low, maxOf(recent.min().toInt() - 2, range.first - 18))
+            high = maxOf(high, minOf(recent.max().toInt() + 3, range.last + 18))
+        }
+    }
+    val animatedLow by animateFloatAsState(low.toFloat(), animationSpec = tween(600), label = "basso")
+    val animatedHigh by animateFloatAsState(high.toFloat(), animationSpec = tween(600), label = "alto")
 
     Column(modifier.fillMaxSize()) {
         SimpleTopBar(exercise.name, onBack = {
@@ -139,8 +152,8 @@ fun ExerciseRunScreen(
             PitchGraph(
                 points = if (running) vm.history else emptyList(),
                 nowSec = now,
-                lowMidi = low - 0.5f,
-                highMidi = high + 0.5f,
+                lowMidi = animatedLow - 0.5f,
+                highMidi = animatedHigh + 0.5f,
                 notation = settings.notation,
                 windowSec = 7.0,
                 playheadFraction = 0.3f,

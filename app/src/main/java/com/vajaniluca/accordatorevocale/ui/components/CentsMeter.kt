@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vajaniluca.accordatorevocale.music.Guide
 import com.vajaniluca.accordatorevocale.ui.theme.PitchColors
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -46,21 +47,15 @@ fun CentsMeter(cents: Float?, toleranceCents: Int, modifier: Modifier = Modifier
     }
 }
 
-/** Testo che dice se sei intonato, più alto o più basso. */
+/** Indicazione pratica: sali, scendi o resta così, per arrivare alla nota. */
 @Composable
 fun DeviationLabel(cents: Double?, toleranceCents: Int, style: TextStyle = MaterialTheme.typography.titleLarge) {
     if (cents == null) {
         Text(" ", style = style)
         return
     }
-    // Il numero va a passi di 5 cent: un valore che cambia a ogni frame sarebbe illeggibile.
-    val rounded = (cents / 5).roundToInt() * 5
-    val text = when {
-        abs(cents) <= toleranceCents -> "✓ Intonato (${signed(rounded)} cent)"
-        cents > 0 -> "▲ Più alto di $rounded cent"
-        else -> "▼ Più basso di ${-rounded} cent"
-    }
-    Text(text, style = style, fontWeight = FontWeight.SemiBold, color = PitchColors.forCents(cents, toleranceCents))
+    val guidance = Guide.forCents(cents, toleranceCents)
+    Text(guidance.text, style = style, fontWeight = FontWeight.SemiBold, color = PitchColors.forCents(cents, toleranceCents))
 }
 
 fun signed(value: Int): String = if (value > 0) "+$value" else value.toString()

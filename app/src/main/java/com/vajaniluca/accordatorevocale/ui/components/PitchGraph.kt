@@ -8,6 +8,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.TextStyle
@@ -143,7 +144,29 @@ fun PitchGraph(
 
             val last = points.lastOrNull()
             if (last?.midi != null && nowSec - last.timeSec < 0.15) {
-                drawCircle(playheadColor, radius = 5.dp.toPx(), center = Offset(x(last.timeSec), y(last.midi)))
+                val ly = y(last.midi)
+                if (ly in 0f..size.height) {
+                    drawCircle(playheadColor, radius = 5.dp.toPx(), center = Offset(x(last.timeSec), ly))
+                } else {
+                    // La voce è fuori dal grafico: freccia sul bordo con il nome della nota cantata.
+                    val above = ly < 0f
+                    val s = 9.dp.toPx()
+                    val tipY = if (above) 2.dp.toPx() else size.height - 2.dp.toPx()
+                    val baseY = if (above) tipY + s else tipY - s
+                    val path = Path().apply {
+                        moveTo(playX, tipY)
+                        lineTo(playX - s, baseY)
+                        lineTo(playX + s, baseY)
+                        close()
+                    }
+                    drawPath(path, PitchColors.Off)
+                    val layout = textMeasurer.measure(
+                        Notes.name(kotlin.math.round(last.midi).toInt(), notation),
+                        labelStyle.copy(color = PitchColors.Off, fontSize = 13.sp),
+                    )
+                    val ty = if (above) baseY + 2.dp.toPx() else baseY - layout.size.height - 2.dp.toPx()
+                    drawText(layout, topLeft = Offset(playX + s + 4.dp.toPx(), ty))
+                }
             }
         }
 

@@ -104,13 +104,14 @@ private fun NoteResultRow(result: NoteResult, toleranceCents: Int, notation: Not
                 if (cents == null) {
                     Text("non cantata", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
-                    val arrow = when {
-                        kotlin.math.abs(cents) <= toleranceCents -> "✓"
-                        cents > 0 -> "▲"
-                        else -> "▼"
+                    val r = cents.roundToInt()
+                    val description = when {
+                        kotlin.math.abs(cents) <= toleranceCents -> "✓ intonata"
+                        cents > 0 -> "più alta di $r cent"
+                        else -> "più bassa di ${-r} cent"
                     }
                     Text(
-                        "$arrow ${signed(cents.roundToInt())} cent" + (result.spreadCents?.let { "  (oscillazione ±${it.roundToInt()})" } ?: ""),
+                        description + (result.spreadCents?.let { "  (oscillazione ±${it.roundToInt()})" } ?: ""),
                         color = PitchColors.forCents(cents, toleranceCents),
                         fontWeight = FontWeight.SemiBold,
                     )
